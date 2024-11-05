@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "aerial-library"
+version = "0.1.0"
+description = ""
+authors = ["robo4you"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+cflib = "^0.1.27"
+libusb-package = "1.0.26.1"  # TODO wait for non-broken latest version
+appdirs = "^1.4.4"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
