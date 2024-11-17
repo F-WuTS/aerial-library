@@ -133,6 +133,20 @@ class DroneActions:
     def turn_right(self, angle_deg: float) -> None:
         self._change_relative_position(yaw=-angle_deg)
 
+    def move(
+            self,
+            forward: float = 0,
+            back: float = 0,
+            left: float = 0,
+            right: float = 0,
+            up: float = 0,
+            down: float = 0
+    ) -> None:
+        total_forward = forward - back
+        total_left = left - right
+        total_up = up - down
+        self._change_relative_position(forward=total_forward, left=total_left, up=total_up)
+
     @property
     def is_flying(self) -> bool:
         return self._is_flying
