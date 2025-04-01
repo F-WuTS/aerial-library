@@ -85,7 +85,7 @@ class Drone:
             case 1:
                 return available[0]
 
-            case 2:
+            case _:
                 index = self._ask_desired_connection(available)
                 return available[index]
 
