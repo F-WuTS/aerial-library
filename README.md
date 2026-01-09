@@ -41,7 +41,7 @@ Installation
 > [!NOTE]
 > TODO: provide package somewhere
 > 
-> For now, run `poetry build` and install the `.whl` file to your interpreter using `pip`
+> For now, run `uv build` and install the `.whl` file to your interpreter using `pip`
 
 
 ---
@@ -54,5 +54,4 @@ Developer Roadmap
 * [ ] Fix `Error no LogEntry to handle id=...`
 * [ ] Make all but `Drone` actually package-private
 * [ ] Finalise [pyproject.toml](./pyproject.toml)
-* [ ] Wait for non-broken `libusb-package` wheel
 * [ ] Provide developer docs/info about implementation
