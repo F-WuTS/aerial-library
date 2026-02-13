@@ -25,7 +25,7 @@ _FAST_DEG_PER_S: Final = 180.0
 _TAKEOFF_M_PER_S: Final = 1.0
 _TAKEOFF_HEIGHT_M: Final = 0.5
 
-_LANDING_M_PER_S: Final = 0.6
+_LANDING_M_PER_S: Final = 0.5
 _LANDING_FALL_DISTANCE_M: Final = 0.04
 
 _DISTANCE_THRESHOLD_M: Final = 0.075
@@ -104,6 +104,10 @@ class MotionController(ContextManager):
             distance_m=self._current_pos.z - self._target.z,
             override_m_per_s=_LANDING_M_PER_S,
         )
+
+        print(f"{self._current_pos.z - self._target.z=}")
+        print(f"{self._target.z + _LANDING_FALL_DISTANCE_M=} ")
+        print(f"{duration=}")
 
         self._drone.cf.high_level_commander.land(
             absolute_height_m=self._target.z + _LANDING_FALL_DISTANCE_M,
