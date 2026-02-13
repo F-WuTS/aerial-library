@@ -14,7 +14,7 @@ class MultiRangerDeck(ContextManager):
 
     def __init__(self, drone: "Drone"):
         self._drone = drone
-        self._deck = Multiranger(crazyflie=drone.cf, rate_ms=10)
+        self._deck: Optional[Multiranger] = None
 
     def __enter__(self):
         self._log.info("Entering")
@@ -22,6 +22,7 @@ class MultiRangerDeck(ContextManager):
         if not self._drone.has_deck("bcMultiranger"):
             raise MultiRangerDeckNotFound()
 
+        self._deck = Multiranger(crazyflie=self._drone.cf, rate_ms=10)
         self._deck.start()
 
     def __exit__(self, exc_type, exc_value, traceback):
