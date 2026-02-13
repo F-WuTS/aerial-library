@@ -9,6 +9,7 @@ from cflib.crazyflie.syncLogger import SyncLogger
 from aerial_library.api.errors import AlreadyConnected, NotConnected
 from aerial_library.api.feature import Feature
 from aerial_library.backend.batterystate import BatteryState
+from aerial_library.backend.connectionstate import ConnectionState
 from aerial_library.backend.motioncontroller import MotionController
 from aerial_library.backend.multirangerdeck import MultiRangerDeck
 from aerial_library.backend.util import build_log_config
@@ -22,7 +23,7 @@ class Drone(ContextManager):
         cache_dir = user_cache_dir(__package__)
 
         self._scf = SyncCrazyflie(link_uri=uri, cf=Crazyflie(rw_cache=cache_dir))
-        self._state = _State.Disconnected
+        self._state = ConnectionState.Disconnected
 
         self.motion_controller = self._load_motion_controller(expected_features)
         self.multi_ranger = self._load_multi_ranger(expected_features)
@@ -33,17 +34,18 @@ class Drone(ContextManager):
 
     @property
     def scf(self) -> SyncCrazyflie:
-        if self._state == _State.Disconnected:
+        if self._state == ConnectionState.Disconnected:
             raise RuntimeError("Crazyflie is not connected")
 
         return self._scf
 
     def __enter__(self):
         if self._state != _State.Disconnected:
+        if self._state != ConnectionState.Disconnected:
             raise AlreadyConnected()
 
         self._scf.open_link()
-        self._state = _State.Connecting
+        self._state = ConnectionState.Connecting
 
         if self.motion_controller:
             self.motion_controller.__enter__()
@@ -51,13 +53,14 @@ class Drone(ContextManager):
         if self.multi_ranger:
             self.multi_ranger.__enter__()
 
-        self._state = _State.Connected
+        self._state = ConnectionState.Connected
 
     def __exit__(self, exc_type, exc_value, traceback):
         if self._state != _State.Connected:
+        if self._state != ConnectionState.Connected:
             raise NotConnected()
 
-        self._state = _State.Disconnecting
+        self._state = ConnectionState.Disconnecting
 
         if self.motion_controller is not None:
             self.motion_controller.__exit__(exc_value, exc_value, traceback)
@@ -65,7 +68,7 @@ class Drone(ContextManager):
         if self.multi_ranger is not None:
             self.multi_ranger.__exit__(exc_value, exc_value, traceback)
 
-        self._state = _State.Disconnected
+        self._state = ConnectionState.Disconnected
         self._scf.close_link()
 
     def get_battery_information(self) -> tuple[BatteryState, int]:
@@ -89,7 +92,8 @@ class Drone(ContextManager):
         return has_deck
 
     def _load_motion_controller(
-        self, features: set[Feature]
+        self,
+        features: set[Feature],
     ) -> Optional[MotionController]:
         if Feature.FlowDeck in features:
             use_fast_mode = Feature.FastMode in features
@@ -97,15 +101,11 @@ class Drone(ContextManager):
 
         return None
 
-    def _load_multi_ranger(self, features: set[Feature]) -> Optional[MultiRangerDeck]:
+    def _load_multi_ranger(
+        self,
+        features: set[Feature],
+    ) -> Optional[MultiRangerDeck]:
         if Feature.MultiRangerDeck in features:
             return MultiRangerDeck(self)
 
         return None
-
-
-class _State(Enum):
-    Disconnected = 0
-    Connecting = 1
-    Connected = 2
-    Disconnecting = 3
