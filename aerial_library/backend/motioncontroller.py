@@ -1,3 +1,4 @@
+from logging import getLogger
 from math import cos, sin, radians
 from time import sleep
 from typing import Final, Optional, ContextManager, TYPE_CHECKING
@@ -32,6 +33,8 @@ _LANDING_FALL_COOLDOWN_S: Final = 1.0
 
 
 class MotionController(ContextManager):
+    _log = getLogger(__name__)
+
     def __init__(self, drone: "Drone", use_fast_mode: bool):
         self._drone = drone
 
@@ -44,13 +47,19 @@ class MotionController(ContextManager):
         self._target: Optional[Position] = None
 
     def __enter__(self):
+        self._log.info("Entering")
+
         if not self._drone.has_deck("bcFlow2"):
             raise FlowDeckNotFound()
 
         self._register_position_listener()
         self._await_initial_position()
 
+        self._log.info("Ready")
+
     def __exit__(self, exc_type, exc_value, traceback):
+        self._log.info("Exiting")
+
         if self.is_flying:
             self.land()
 
@@ -59,6 +68,8 @@ class MotionController(ContextManager):
         return self._is_flying
 
     def takeoff(self, height_m: float) -> None:
+        self._log.info(f"Taking off to {height_m}m")
+
         if self.is_flying:
             raise AlreadyFlying()
 
@@ -78,9 +89,11 @@ class MotionController(ContextManager):
         sleep(duration)
 
         # Correct sideways motion caused by ground effect
-        self.change_relative_position()
+        self._move_to_target()
 
     def land(self) -> None:
+        self._log.info("Landing")
+
         if not self.is_flying:
             raise AlreadyLanded()
 
@@ -106,14 +119,23 @@ class MotionController(ContextManager):
         up_m: float = 0,
         yaw_deg: float = 0,
     ):
-        if not self.is_flying:
-            raise RuntimeError("Cannot change position, drone is landed")
+        change = Position(forward_m, left_m, up_m, yaw_deg)
+        self._log.info(f"Changing relative position by {change}")
 
         psi = radians(self._target.yaw)
-        self._target.x += forward_m * cos(psi) - left_m * sin(psi)
-        self._target.y += forward_m * sin(psi) + left_m * cos(psi)
-        self._target.z += up_m
-        self._target.yaw += yaw_deg
+
+        self._target.x += change.x * cos(psi) - change.y * sin(psi)
+        self._target.y += change.x * sin(psi) + change.y * cos(psi)
+        self._target.z += change.z
+        self._target.yaw += change.yaw
+
+        self._move_to_target()
+
+    def _move_to_target(self):
+        self._log.debug(f"Moving to {self._target}")
+
+        if not self.is_flying:
+            raise RuntimeError("Cannot move drone, it is landed")
 
         distance_m = self._current_pos.distance_to(self._target)
         distance_deg = self._current_pos.angle_to(self._target)
@@ -129,11 +151,11 @@ class MotionController(ContextManager):
 
         sleep(duration)
 
+        # Wait until the drone settled
         while (
             self._current_pos.distance_to(self._target) > _DISTANCE_THRESHOLD_M
             or self._current_pos.angle_to(self._target) > _DISTANCE_THRESHOLD_DEG
         ):
-            # Wait until the drone settled
             sleep(0.01)
 
     def _get_flight_duration(

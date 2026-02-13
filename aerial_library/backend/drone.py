@@ -1,4 +1,4 @@
-from enum import Enum
+from logging import getLogger
 from typing import Optional, Final, ContextManager
 
 from appdirs import user_cache_dir
@@ -19,6 +19,8 @@ _PARAM_TIMEOUT_S: Final = 5.0
 
 
 class Drone(ContextManager):
+    _log = getLogger(__name__)
+
     def __init__(self, uri: str, expected_features: set[Feature]):
         cache_dir = user_cache_dir(__package__)
 
@@ -40,7 +42,8 @@ class Drone(ContextManager):
         return self._scf
 
     def __enter__(self):
-        if self._state != _State.Disconnected:
+        self._log.info("Entering")
+
         if self._state != ConnectionState.Disconnected:
             raise AlreadyConnected()
 
@@ -56,7 +59,8 @@ class Drone(ContextManager):
         self._state = ConnectionState.Connected
 
     def __exit__(self, exc_type, exc_value, traceback):
-        if self._state != _State.Connected:
+        self._log.info("Exiting")
+
         if self._state != ConnectionState.Connected:
             raise NotConnected()
 

@@ -1,3 +1,4 @@
+from logging import getLogger
 from typing import ContextManager, TYPE_CHECKING, Optional
 
 from cflib.utils.multiranger import Multiranger
@@ -9,17 +10,23 @@ if TYPE_CHECKING:
 
 
 class MultiRangerDeck(ContextManager):
+    _log = getLogger(__name__)
+
     def __init__(self, drone: "Drone"):
         self._drone = drone
         self._deck = Multiranger(crazyflie=drone.cf, rate_ms=10)
 
     def __enter__(self):
+        self._log.info("Entering")
+
         if not self._drone.has_deck("bcMultiranger"):
             raise MultiRangerDeckNotFound()
 
         self._deck.start()
 
     def __exit__(self, exc_type, exc_value, traceback):
+        self._log.info("Exiting")
+
         self._deck.stop()
 
     def get_front_distance_m(self) -> Optional[float]:
