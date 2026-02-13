@@ -105,10 +105,6 @@ class MotionController(ContextManager):
             override_m_per_s=_LANDING_M_PER_S,
         )
 
-        print(f"{self._current_pos.z - self._target.z=}")
-        print(f"{self._target.z + _LANDING_FALL_DISTANCE_M=} ")
-        print(f"{duration=}")
-
         self._drone.cf.high_level_commander.land(
             absolute_height_m=self._target.z + _LANDING_FALL_DISTANCE_M,
             yaw=None,  # Leave current yaw unchanged
