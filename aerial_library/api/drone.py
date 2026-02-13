@@ -55,6 +55,8 @@ class Drone(ContextManager):
     """
 
     def __init__(self, *features: Feature):
+        print("Loading Crazyflie drivers ...")
+
         crtp.init_drivers()
         uri = select_connection()
 
@@ -62,12 +64,16 @@ class Drone(ContextManager):
         self._backend = PhysicalDrone(uri, self._features)
 
     def __enter__(self) -> Actions:
+        print("Starting drone program ...")
+
         self._backend.__enter__()
         self._display_battery_state()
 
         return Actions(self._features, self._backend)
 
     def __exit__(self, exc_type, exc_value, traceback):
+        print("Stopping drone program ...")
+
         self._backend.__exit__(exc_type, exc_value, traceback)
 
     def _display_battery_state(self):
