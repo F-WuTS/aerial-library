@@ -22,14 +22,14 @@ _SLOW_DEG_PER_S: Final = 45.0
 _FAST_M_PER_S: Final = 1.0
 _FAST_DEG_PER_S: Final = 180.0
 
-_TAKEOFF_M_PER_S: Final = 0.5
-_LANDING_M_PER_S: Final = 0.5
+_TAKEOFF_M_PER_S: Final = 1.0
+_TAKEOFF_HEIGHT_M: Final = 0.5
+
+_LANDING_M_PER_S: Final = 0.6
+_LANDING_FALL_DISTANCE_M: Final = 0.04
 
 _DISTANCE_THRESHOLD_M: Final = 0.075
 _DISTANCE_THRESHOLD_DEG: Final = 2.5
-
-_LANDING_FALL_DISTANCE_M: Final = 0.04
-_LANDING_FALL_COOLDOWN_S: Final = 1.0
 
 
 class MotionController(ContextManager):
@@ -75,20 +75,20 @@ class MotionController(ContextManager):
 
         self._is_flying = True
 
-        self._target.z += height_m
+        # Take off to a fixed height
         duration = self._get_flight_duration(
-            distance_m=height_m,
+            distance_m=_TAKEOFF_HEIGHT_M,
             override_m_per_s=_TAKEOFF_M_PER_S,
         )
-
         self._drone.cf.high_level_commander.takeoff(
-            absolute_height_m=self._current_pos.z + height_m,
+            absolute_height_m=self._current_pos.z + _TAKEOFF_HEIGHT_M,
             yaw=None,  # Leave current yaw unchanged
             duration_s=duration,
         )
         sleep(duration)
 
-        # Correct sideways motion caused by ground effect
+        # Move to the desired height and correct sideways motion caused by ground effect
+        self._target.z += height_m
         self._move_to_target()
 
     def land(self) -> None:
@@ -101,16 +101,16 @@ class MotionController(ContextManager):
 
         self._target.z = self._home.z
         duration = self._get_flight_duration(
-            distance_m=self._current_pos.z - self._home.z,
+            distance_m=self._current_pos.z - self._target.z,
             override_m_per_s=_LANDING_M_PER_S,
         )
 
         self._drone.cf.high_level_commander.land(
-            absolute_height_m=self._home.z + _LANDING_FALL_DISTANCE_M,
+            absolute_height_m=self._target.z + _LANDING_FALL_DISTANCE_M,
             yaw=None,  # Leave current yaw unchanged
             duration_s=duration,
         )
-        sleep(duration + _LANDING_FALL_COOLDOWN_S)
+        sleep(duration)
 
     def change_relative_position(
         self,
