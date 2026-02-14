@@ -41,13 +41,12 @@ class Drone(ContextManager):
         This short script connects to a Crazyflie with all features enabled.
         The drone takes off at an altitude of 1 meter and measures the distance to the front:
 
-        >>> from aerial_library import Drone, FlowDeck, MultiRangerDeck, FastMode
+        >>> from aerial_library import Drone, FlowDeck, MultiRangerDeck
         >>>
         >>> with Drone(
         ...     "E7E7E7E7E7",
         ...     FlowDeck,
         ...     MultiRangerDeck,
-        ...     FastMode,
         ... ) as drone:
         ...     drone.takeoff(1.0)
         ...
