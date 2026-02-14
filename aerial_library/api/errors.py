@@ -15,6 +15,14 @@ class NoCrazyflieFound(AerialLibraryError):
         super().__init__("Could not find any Crazyflie to connect to")
 
 
+class InvalidCrazyflieAddress(AerialLibraryError):
+    def __init__(self, address: str):
+        super().__init__(
+            f"Invalid Crazyflie address '{address}'."
+            f" A Crazyflie address looks like 'E7E7E7E7E7'"
+        )
+
+
 class FlowDeckNotFound(AerialLibraryError):
     def __init__(self):
         super().__init__("Flow deck not found, is it attached?")

@@ -3,8 +3,7 @@ from typing import Optional
 from cflib import crtp
 from cflib.crazyflie.log import LogConfig
 
-from aerial_library.api.errors import NoCrazyflieFound
-
+from aerial_library.api.errors import NoCrazyflieFound, InvalidCrazyflieAddress
 
 def build_log_config(name: str, period_ms: int, entry_names: set[str]) -> LogConfig:
     if period_ms < 10:
@@ -18,19 +17,27 @@ def build_log_config(name: str, period_ms: int, entry_names: set[str]) -> LogCon
     return log_config
 
 
-def select_connection() -> str:
-    available = [uri for uri, _ in crtp.scan_interfaces()]
+def select_connection(address: str) -> str:
+    if not is_crazyflie_address(address):
+        raise InvalidCrazyflieAddress(address)
 
-    match len(available):
-        case 0:
-            raise NoCrazyflieFound()
+    available = [uri for uri, _ in crtp.scan_interfaces(address)]
 
-        case 1:
-            return available[0]
+    if len(available) == 0:
+        raise NoCrazyflieFound()
 
-        case _:
-            index = _ask_desired_connection(available)
-            return available[index]
+    index = _ask_desired_connection(available)
+    return available[index]
+
+
+def is_crazyflie_address(address: str) -> bool:
+    if len(address) != 10:
+        return False
+
+    if not all(digit in "0123456789abcdefABCDEF" for digit in address):
+        return False
+
+    return True
 
 
 def _ask_desired_connection(available) -> int:

@@ -9,7 +9,7 @@ from aerial_library.backend.util import select_connection
 
 
 class Drone(ContextManager):
-    """ `Drone` is your entrypoint to programming your Crazyflie drone.
+    """`Drone` is your entrypoint to programming your Crazyflie drone.
 
     Instantiate a `Drone` as a *context manager* in a `with`-statement.
     Declare the `Features` you would like to use in its constructor, for example `FlowDeck`.
@@ -17,7 +17,7 @@ class Drone(ContextManager):
 
     >>> from aerial_library import Drone, FlowDeck
     >>>
-    >>> with Drone(FlowDeck) as minimal_drone:
+    >>> with Drone("E7E7E7E7E7", FlowDeck) as minimal_drone:
     ...     minimal_drone.move.takeoff(1.0)
 
     This *context manager* will take care of almost everything:
@@ -43,6 +43,7 @@ class Drone(ContextManager):
         >>> from aerial_library import Drone, FlowDeck, MultiRangerDeck, FastMode
         >>>
         >>> with Drone(
+        ...     "E7E7E7E7E7",
         ...     FlowDeck,
         ...     MultiRangerDeck,
         ...     FastMode,
@@ -54,11 +55,15 @@ class Drone(ContextManager):
 
     """
 
-    def __init__(self, *features: Feature):
+    def __init__(
+        self,
+        address: str,
+        *features: Feature,
+    ):
         print("Loading Crazyflie drivers ...")
 
         crtp.init_drivers()
-        uri = select_connection()
+        uri = select_connection(address)
 
         self._features = set(features)
         self._backend = PhysicalDrone(uri, self._features)
