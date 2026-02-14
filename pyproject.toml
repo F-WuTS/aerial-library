@@ -4,7 +4,7 @@ authors = [
     { name = "Konstantin Lindorfer", email = "konstantin.lindorfer@robo4you.at" }
 ]
 description = "Intuitive controls for a Crazyflie drone, built for the robo4you Aerial Junior Challenge"
-version = "0.1.0"
+version = "0.2.0"
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE.txt"]

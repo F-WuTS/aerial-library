@@ -19,7 +19,7 @@ class Drone(ContextManager):
     >>> from aerial_library import Drone, FlowDeck
     >>>
     >>> with Drone("E7E7E7E7E7", FlowDeck) as minidrone:
-    ...     minidrone.move.takeoff(1.0)
+    ...     minidrone.takeoff(1.0)
 
     This context manager will take care of almost everything:
 
@@ -49,9 +49,9 @@ class Drone(ContextManager):
         ...     MultiRangerDeck,
         ...     FastMode,
         ... ) as drone:
-        ...     drone.move.takeoff(1.0)
+        ...     drone.takeoff(1.0)
         ...
-        ...     distance = drone.measure.front()
+        ...     distance = drone.measure_front()
         ...     print(f"Distance to front in meters: {distance}")
     """
 
@@ -60,7 +60,7 @@ class Drone(ContextManager):
         address: str,
         *features: Feature,
     ):
-        print("Loading Crazyflie drivers ...")
+        print("Loading Crazyflie drivers")
 
         crtp.init_drivers()
         uri = select_connection(address)
@@ -69,7 +69,7 @@ class Drone(ContextManager):
         self._backend = DroneBackend(uri, self._features)
 
     def __enter__(self) -> Actions:
-        print("Starting drone program ...")
+        print("Entering drone program")
 
         self._backend.__enter__()
         self._display_battery_state()
@@ -77,7 +77,7 @@ class Drone(ContextManager):
         return Actions(self._features, self._backend)
 
     def __exit__(self, exc_type, exc_value, traceback):
-        print("Stopping drone program ...")
+        print("Exiting drone program")
 
         self._backend.__exit__(exc_type, exc_value, traceback)
 

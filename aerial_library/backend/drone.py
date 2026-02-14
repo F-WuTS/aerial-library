@@ -100,8 +100,7 @@ class Drone(ContextManager):
         features: set[Feature],
     ) -> Optional[MotionController]:
         if Feature.FlowDeck in features:
-            use_fast_mode = Feature.FastMode in features
-            return MotionController(self, use_fast_mode)
+            return MotionController(self)
 
         return None
 

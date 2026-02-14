@@ -3,7 +3,12 @@ from math import cos, sin, radians
 from time import sleep
 from typing import Final, Optional, ContextManager, TYPE_CHECKING
 
-from aerial_library.api.errors import FlowDeckNotFound, AlreadyFlying, AlreadyLanded
+from aerial_library.api.errors import (
+    FlowDeckNotFound,
+    AlreadyFlying,
+    AlreadyLanded,
+    CannotMoveOnGround,
+)
 from aerial_library.backend.position import Position
 from aerial_library.backend.util import build_log_config
 
@@ -35,11 +40,11 @@ _DISTANCE_THRESHOLD_DEG: Final = 2.5
 class MotionController(ContextManager):
     _log = getLogger(__name__)
 
-    def __init__(self, drone: "Drone", use_fast_mode: bool):
+    def __init__(self, drone: "Drone"):
         self._drone = drone
 
-        self._m_per_s = _FAST_M_PER_S if use_fast_mode else _SLOW_M_PER_S
-        self._deg_per_s = _FAST_DEG_PER_S if use_fast_mode else _SLOW_DEG_PER_S
+        self._m_per_s = _SLOW_M_PER_S
+        self._deg_per_s = _SLOW_DEG_PER_S
 
         self._is_flying = False
         self._home: Optional[Position] = None
@@ -66,6 +71,16 @@ class MotionController(ContextManager):
     @property
     def is_flying(self) -> bool:
         return self._is_flying
+
+    def set_fast_mode(self, is_on: bool) -> None:
+        self._log.info(f"Setting fast mode to {is_on}")
+
+        if is_on:
+            self._m_per_s = _FAST_M_PER_S
+            self._deg_per_s = _FAST_DEG_PER_S
+        else:
+            self._m_per_s = _SLOW_M_PER_S
+            self._deg_per_s = _SLOW_DEG_PER_S
 
     def takeoff(self, height_m: float) -> None:
         self._log.info(f"Taking off to {height_m}m")
@@ -135,7 +150,7 @@ class MotionController(ContextManager):
         self._log.debug(f"Moving to {self._target}")
 
         if not self.is_flying:
-            raise RuntimeError("Cannot move drone, it is landed")
+            raise CannotMoveOnGround()
 
         distance_m = self._current_pos.distance_to(self._target)
         distance_deg = self._current_pos.angle_to(self._target)

@@ -6,8 +6,10 @@ class AerialLibraryError(Exception):
 
 
 class MissingFeature(AerialLibraryError):
-    def __init__(self, feature: Feature, api_name: str):
-        super().__init__(f"{feature} is required to use the '{api_name}' API")
+    def __init__(self, feature: Feature):
+        super().__init__(
+            f"The {feature} feature is required to do this, but it was not specified"
+        )
 
 
 class NoCrazyflieFound(AerialLibraryError):
@@ -18,19 +20,22 @@ class NoCrazyflieFound(AerialLibraryError):
 class InvalidCrazyflieAddress(AerialLibraryError):
     def __init__(self, address: str):
         super().__init__(
-            f"Invalid Crazyflie address '{address}'."
-            f" A Crazyflie address looks like 'E7E7E7E7E7'"
+            f"Invalid Crazyflie address: '{address}'. Example address: 'E7E7E7E7E7'"
         )
 
 
 class FlowDeckNotFound(AerialLibraryError):
     def __init__(self):
-        super().__init__("Flow deck not found, is it attached?")
+        super().__init__(
+            "The Flow Deck is required, but it was not found. Is it attached?"
+        )
 
 
 class MultiRangerDeckNotFound(AerialLibraryError):
     def __init__(self):
-        super().__init__("MultiRanger deck not found, is it attached?")
+        super().__init__(
+            "The Multi-ranger Deck is required, but it was not found. Is it attached?"
+        )
 
 
 class AlreadyConnected(AerialLibraryError):
@@ -51,3 +56,8 @@ class AlreadyFlying(AerialLibraryError):
 class AlreadyLanded(AerialLibraryError):
     def __init__(self):
         super().__init__("The drone is not flying, cannot land")
+
+
+class CannotMoveOnGround(AerialLibraryError):
+    def __init__(self):
+        super().__init__("The drone cannot move now, it is not flying")
