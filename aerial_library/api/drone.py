@@ -4,23 +4,24 @@ from cflib import crtp
 
 from aerial_library.api.actions import Actions
 from aerial_library.api.feature import Feature
-from aerial_library.backend.drone import Drone as PhysicalDrone
+from aerial_library.backend.drone import Drone as DroneBackend
 from aerial_library.backend.util import select_connection
 
 
 class Drone(ContextManager):
     """`Drone` is your entrypoint to programming your Crazyflie drone.
 
-    Instantiate a `Drone` as a *context manager* in a `with`-statement.
-    Declare the `Features` you would like to use in its constructor, for example `FlowDeck`.
+    Instantiate the `Drone` in a `with`-statement.
+    First, specify the radio address of your Crazyflie.
+    Then, declare the `Features` you would like to use, for example `FlowDeck`.
     The returned object should be named and is then used to control the drone:
 
     >>> from aerial_library import Drone, FlowDeck
     >>>
-    >>> with Drone("E7E7E7E7E7", FlowDeck) as minimal_drone:
-    ...     minimal_drone.move.takeoff(1.0)
+    >>> with Drone("E7E7E7E7E7", FlowDeck) as minidrone:
+    ...     minidrone.move.takeoff(1.0)
 
-    This *context manager* will take care of almost everything:
+    This context manager will take care of almost everything:
 
     * When running the `with`-block, the user is first asked which drone to connect to.
       If only one drone is found, that drone will be used automatically.
@@ -52,7 +53,6 @@ class Drone(ContextManager):
         ...
         ...     distance = drone.measure.front()
         ...     print(f"Distance to front in meters: {distance}")
-
     """
 
     def __init__(
@@ -66,7 +66,7 @@ class Drone(ContextManager):
         uri = select_connection(address)
 
         self._features = set(features)
-        self._backend = PhysicalDrone(uri, self._features)
+        self._backend = DroneBackend(uri, self._features)
 
     def __enter__(self) -> Actions:
         print("Starting drone program ...")

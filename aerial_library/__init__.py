@@ -1,9 +1,5 @@
 from aerial_library.api.drone import Drone
-from aerial_library.api.feature import Feature
-
-FlowDeck = Feature.FlowDeck
-MultiRangerDeck = Feature.MultiRangerDeck
-FastMode = Feature.FastMode
+from aerial_library.api.feature import FlowDeck, MultiRangerDeck, FastMode
 
 __all__ = [
     "Drone",
