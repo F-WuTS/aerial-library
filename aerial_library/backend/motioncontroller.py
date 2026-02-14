@@ -22,7 +22,7 @@ _SLOW_DEG_PER_S: Final = 45.0
 _FAST_M_PER_S: Final = 1.0
 _FAST_DEG_PER_S: Final = 180.0
 
-_TAKEOFF_M_PER_S: Final = 1.0
+_TAKEOFF_M_PER_S: Final = 0.5
 _TAKEOFF_HEIGHT_M: Final = 0.5
 
 _LANDING_M_PER_S: Final = 0.5
