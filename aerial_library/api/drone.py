@@ -14,7 +14,7 @@ class Drone(ContextManager):
     Instantiate the `Drone` in a `with`-statement.
     First, specify the radio address of your Crazyflie.
     Then, declare the `Features` you would like to use, for example `FlowDeck`.
-    The returned object should be named and is then used to control the drone:
+    The returned object should be named and can then be used to control the drone:
 
     >>> from aerial_library import Drone, FlowDeck
     >>>
@@ -24,22 +24,19 @@ class Drone(ContextManager):
     This context manager will take care of almost everything:
 
     * When running the `with`-block, the user is first asked which drone to connect to.
-      If only one drone is found, that drone will be used automatically.
       If no drones are found, an error will be raised.
 
     * Once connected, the additional features are loaded and the drone is checked for the required hardware.
       The battery state is displayed in the terminal for manual checking.
 
     * Now the code inside the `with`-block is executed.
-      Use the ``move`` and ``measure`` APIs on the Actions object returned by the `with`-statement to control the drone.
-
-    * At the end of the `with`-block, the drone is automatically landed if necessary.
+      At the end of the `with`-block, the drone is automatically landed if necessary.
       This is also the case should the program raise an error while the drone is flying.
       After landing, the Crazyflie is disconnected.
 
     Example:
         This short script connects to a Crazyflie with all features enabled.
-        The drone takes off at an altitude of 1 meter and measures the distance to the front:
+        The drone takes off to an altitude of 1 meter and measures the distance to the front:
 
         >>> from aerial_library import Drone, FlowDeck, MultiRangerDeck
         >>>
