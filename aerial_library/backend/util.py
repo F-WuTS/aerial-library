@@ -1,9 +1,8 @@
-from typing import Optional
-
 from cflib import crtp
 from cflib.crazyflie.log import LogConfig
 
-from aerial_library.api.errors import NoCrazyflieFound, InvalidCrazyflieAddress
+from aerial_library.api.errors import CrazyflieNotFound, InvalidCrazyflieAddress
+
 
 def build_log_config(name: str, period_ms: int, entry_names: set[str]) -> LogConfig:
     if period_ms < 10:
@@ -18,40 +17,51 @@ def build_log_config(name: str, period_ms: int, entry_names: set[str]) -> LogCon
 
 
 def select_connection(address: str) -> str:
-    if not is_crazyflie_address(address):
-        raise InvalidCrazyflieAddress(address)
+    numerical_address = _parse_crazyflie_address(address)
 
-    available = [uri for uri, _ in crtp.scan_interfaces(address)]
+    available = [uri for uri, _ in crtp.scan_interfaces(numerical_address)]
 
     if len(available) == 0:
-        raise NoCrazyflieFound()
+        raise CrazyflieNotFound(address)
 
     index = _ask_desired_connection(available)
     return available[index]
 
 
-def is_crazyflie_address(address: str) -> bool:
+def _parse_crazyflie_address(address: str) -> int:
+    invalid_address_error = InvalidCrazyflieAddress(address)
+
     if len(address) != 10:
-        return False
+        raise invalid_address_error
 
     if not all(digit in "0123456789abcdefABCDEF" for digit in address):
-        return False
+        raise invalid_address_error
 
-    return True
+    try:
+        return int(address, 16)
+    except ValueError as e:
+        raise invalid_address_error from e
 
 
 def _ask_desired_connection(available) -> int:
-    print("Multiple connections available:")
+    print("Available connections:")
     for i, option in enumerate(available):
         print(f"-> {i}: {option}")
 
-    choice: Optional[int] = None
-    while choice is None or choice not in range(len(available)):
-        try:
-            in_str = input("Enter connection number: ")
-            choice = int(in_str)
+    while True:
+        in_str = input("Enter connection number: ")
 
-        except ValueError:
+
+        if not in_str.isdigit():
+            print("Invalid input, please try again")
+            continue
+
+        choice = int(in_str)
+
+        if choice not in range(len(available)):
             print("Invalid selection, please try again")
+            continue
 
-    return choice
+        return choice
+
+    raise RuntimeError("Unreachable")

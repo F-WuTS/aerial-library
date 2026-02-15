@@ -4,10 +4,10 @@ from time import sleep
 from typing import Final, Optional, ContextManager, TYPE_CHECKING
 
 from aerial_library.api.errors import (
-    FlowDeckNotFound,
     AlreadyFlying,
     AlreadyLanded,
     CannotMoveOnGround,
+    RequiredDeckNotFound,
 )
 from aerial_library.backend.position import Position
 from aerial_library.backend.util import build_log_config
@@ -55,7 +55,7 @@ class MotionController(ContextManager):
         self._log.info("Entering")
 
         if not self._drone.has_deck("bcFlow2"):
-            raise FlowDeckNotFound()
+            raise RequiredDeckNotFound("Flow")
 
         self._register_position_listener()
         self._await_initial_position()

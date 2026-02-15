@@ -6,7 +6,7 @@ from cflib.crazyflie import Crazyflie
 from cflib.crazyflie.syncCrazyflie import SyncCrazyflie
 from cflib.crazyflie.syncLogger import SyncLogger
 
-from aerial_library.api.errors import AlreadyConnected, NotConnected
+from aerial_library.api.errors import AlreadyConnected, AlreadyDisconnected
 from aerial_library.api.feature import Feature
 from aerial_library.backend.batterystate import BatteryState
 from aerial_library.backend.connectionstate import ConnectionState
@@ -62,7 +62,7 @@ class Drone(ContextManager):
         self._log.info("Exiting")
 
         if self._state != ConnectionState.Connected:
-            raise NotConnected()
+            raise AlreadyDisconnected()
 
         self._state = ConnectionState.Disconnecting
 

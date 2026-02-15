@@ -3,7 +3,7 @@ from typing import ContextManager, TYPE_CHECKING, Optional
 
 from cflib.utils.multiranger import Multiranger
 
-from aerial_library.api.errors import MultiRangerDeckNotFound
+from aerial_library.api.errors import RequiredDeckNotFound
 
 if TYPE_CHECKING:
     from aerial_library.backend.drone import Drone
@@ -20,7 +20,7 @@ class MultiRangerDeck(ContextManager):
         self._log.info("Entering")
 
         if not self._drone.has_deck("bcMultiranger"):
-            raise MultiRangerDeckNotFound()
+            raise RequiredDeckNotFound("Multi-ranger")
 
         self._deck = Multiranger(crazyflie=self._drone.cf, rate_ms=10)
         self._deck.start()
