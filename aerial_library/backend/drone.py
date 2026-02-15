@@ -7,7 +7,7 @@ from cflib.crazyflie.log import LogConfig
 from cflib.crazyflie.syncCrazyflie import SyncCrazyflie
 
 from aerial_library.api.errors import AlreadyConnected, NotConnected
-from aerial_library.api.feature import Feature, FlowDeck
+from aerial_library.api.feature import Feature
 from aerial_library.backend.batterystate import BatteryState
 from aerial_library.backend.connectionstate import ConnectionState
 from aerial_library.backend.motioncontroller import MotionController
@@ -23,7 +23,7 @@ _PARAM_BATTERY_STATE_NAME: Final = "pm.state"
 class Drone(ContextManager):
     _log = getLogger(__name__)
 
-    def __init__(self, uri: str, expected_features: set[Feature]):
+    def __init__(self, uri: str, features: set[Feature]):
         self._state = ConnectionState.Disconnected
         self._supervisor_bitmap = 0x0000
         self._battery_level = 0
@@ -37,10 +37,10 @@ class Drone(ContextManager):
         )
 
         self.motion_controller = (
-            MotionController(self) if FlowDeck in expected_features else None
+            MotionController(self) if Feature.FlowDeck in features else None
         )
         self.multi_ranger = (
-            MultiRangerDeck(self) if MultiRangerDeck in expected_features else None
+            MultiRangerDeck(self) if Feature.MultiRangerDeck in features else None
         )
 
     def __enter__(self):
