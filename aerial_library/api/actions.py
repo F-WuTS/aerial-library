@@ -96,7 +96,7 @@ class Actions:
 
         This requires the `FlowDeck` feature.
         """
-        print("Moving up")
+        print(f"Moving up by {distance}m")
         self._require_feature(FlowDeck)
         self._move(up=distance)
 
@@ -105,7 +105,7 @@ class Actions:
 
         This requires the `FlowDeck` feature.
         """
-        print("Moving down")
+        print(f"Moving down by {distance}m")
         self._require_feature(FlowDeck)
         self._move(down=distance)
 
