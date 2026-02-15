@@ -56,7 +56,7 @@ class Drone(ContextManager):
         address: str,
         *features: Feature,
     ):
-        print("Loading Crazyflie drivers")
+        print(f"Looking for drones with address {address}")
 
         crtp.init_drivers()
         uri = select_connection(address)
@@ -65,8 +65,7 @@ class Drone(ContextManager):
         self._backend = DroneBackend(uri, self._features)
 
     def __enter__(self) -> Actions:
-        print("Entering drone program")
-
+        print("Starting drone program")
         self._backend.__enter__()
         self._display_battery_state()
 
@@ -74,7 +73,6 @@ class Drone(ContextManager):
 
     def __exit__(self, exc_type, exc_value, traceback):
         print("Exiting drone program")
-
         self._backend.__exit__(exc_type, exc_value, traceback)
 
     def _display_battery_state(self):
