@@ -28,7 +28,7 @@ class Actions:
         The battery is considered full at 90%.
         It is advised to always use a full battery for an extended flight.
         """
-        _state, level = self._backend.get_battery_information()
+        level = self._backend.battery_level
         return level
 
     def takeoff(self, height: float):

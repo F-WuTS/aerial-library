@@ -76,5 +76,6 @@ class Drone(ContextManager):
         self._backend.__exit__(exc_type, exc_value, traceback)
 
     def _display_battery_state(self):
-        state, level = self._backend.get_battery_information()
+        state = self._backend.battery_state
+        level = self._backend.battery_level
         print(f"Battery is {state} at {level}%")

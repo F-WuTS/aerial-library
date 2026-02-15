@@ -3,11 +3,15 @@ from math import cos, sin, radians
 from time import sleep
 from typing import Final, Optional, ContextManager, TYPE_CHECKING
 
+from cflib.crazyflie.log import LogConfig
+
 from aerial_library.api.errors import (
     AlreadyFlying,
-    AlreadyLanded,
-    CannotMoveOnGround,
+    NotFlying,
     RequiredDeckNotFound,
+    CrazyflieLocked,
+    CrazyflieCrashed,
+    CrazyflieCannotFly,
 )
 from aerial_library.backend.position import Position
 from aerial_library.backend.util import build_log_config
@@ -33,9 +37,6 @@ _TAKEOFF_HEIGHT_M: Final = 0.5
 _LANDING_M_PER_S: Final = 0.5
 _LANDING_FALL_DISTANCE_M: Final = 0.04
 
-_DISTANCE_THRESHOLD_M: Final = 0.075
-_DISTANCE_THRESHOLD_DEG: Final = 2.5
-
 
 class MotionController(ContextManager):
     _log = getLogger(__name__)
@@ -46,10 +47,11 @@ class MotionController(ContextManager):
         self._m_per_s = _SLOW_M_PER_S
         self._deg_per_s = _SLOW_DEG_PER_S
 
-        self._is_flying = False
         self._home: Optional[Position] = None
         self._current_pos: Optional[Position] = None
         self._target: Optional[Position] = None
+
+        self._log_config: LogConfig
 
     def __enter__(self):
         self._log.info("Entering")
@@ -65,14 +67,10 @@ class MotionController(ContextManager):
     def __exit__(self, exc_type, exc_value, traceback):
         self._log.info("Exiting")
 
-        if self.is_flying:
+        if self._drone.is_flying:
             self.land()
 
         self._log_config.stop()
-
-    @property
-    def is_flying(self) -> bool:
-        return self._is_flying
 
     def set_fast_mode(self, is_on: bool) -> None:
         self._log.info(f"Setting fast mode to {is_on}")
@@ -86,11 +84,10 @@ class MotionController(ContextManager):
 
     def takeoff(self, height_m: float) -> None:
         self._log.info(f"Taking off to {height_m}m")
+        self._require_healthy_drone()
 
-        if self.is_flying:
+        if self._drone.is_flying:
             raise AlreadyFlying()
-
-        self._is_flying = True
 
         # Take off to a fixed height
         duration = self._get_flight_duration(
@@ -110,11 +107,10 @@ class MotionController(ContextManager):
 
     def land(self) -> None:
         self._log.info("Landing")
+        self._require_healthy_drone()
 
-        if not self.is_flying:
-            raise AlreadyLanded()
-
-        self._is_flying = False
+        if not self._drone.is_flying:
+            raise NotFlying()
 
         self._target.z = self._home.z
         duration = self._get_flight_duration(
@@ -138,6 +134,7 @@ class MotionController(ContextManager):
     ):
         change = Position(forward_m, left_m, up_m, yaw_deg)
         self._log.info(f"Changing relative position by {change}")
+        self._require_healthy_drone()
 
         psi = radians(self._target.yaw)
 
@@ -148,11 +145,23 @@ class MotionController(ContextManager):
 
         self._move_to_target()
 
+    def _require_healthy_drone(self):
+        self._log.debug("Running health check")
+
+        if self._drone.is_locked:
+            raise CrazyflieLocked()
+
+        if self._drone.is_crashed:
+            raise CrazyflieCrashed()
+
+        if not self._drone.can_fly:
+            raise CrazyflieCannotFly()
+
     def _move_to_target(self):
         self._log.debug(f"Moving to {self._target}")
 
-        if not self.is_flying:
-            raise CannotMoveOnGround()
+        if not self._drone.is_flying:
+            raise NotFlying()
 
         distance_m = self._current_pos.distance_to(self._target)
         distance_deg = self._current_pos.angle_to(self._target)
@@ -168,11 +177,7 @@ class MotionController(ContextManager):
 
         sleep(duration)
 
-        # Wait until the drone settled
-        while (
-            self._current_pos.distance_to(self._target) > _DISTANCE_THRESHOLD_M
-            or self._current_pos.angle_to(self._target) > _DISTANCE_THRESHOLD_DEG
-        ):
+        while not self._drone.is_high_level_trajectory_finished:
             sleep(0.01)
 
     def _get_flight_duration(

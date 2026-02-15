@@ -32,14 +32,14 @@ class RequiredDeckNotFound(AerialLibraryError):
         )
 
 
+class NotConnected(AerialLibraryError):
+    def __init__(self):
+        super().__init__("The Crazyflie is not connected")
+
+
 class AlreadyConnected(AerialLibraryError):
     def __init__(self):
         super().__init__("The drone was already connected, cannot connect again")
-
-
-class AlreadyDisconnected(AerialLibraryError):
-    def __init__(self):
-        super().__init__("The drone is not connected, cannot disconnect")
 
 
 class MissingFeature(AerialLibraryError):
@@ -50,16 +50,29 @@ class MissingFeature(AerialLibraryError):
         )
 
 
+class NotFlying(AerialLibraryError):
+    def __init__(self):
+        super().__init__("The drone is not flying, it must take off first")
+
+
 class AlreadyFlying(AerialLibraryError):
     def __init__(self):
         super().__init__("The drone was already flying, cannot take off again")
 
 
-class AlreadyLanded(AerialLibraryError):
+class CrazyflieLocked(AerialLibraryError):
     def __init__(self):
-        super().__init__("The drone is not flying, cannot land")
+        super().__init__("The Crazyflie is locked and must be restarted")
 
 
-class CannotMoveOnGround(AerialLibraryError):
+class CrazyflieCrashed(AerialLibraryError):
     def __init__(self):
-        super().__init__("The drone cannot move on the ground, it must take off first")
+        super().__init__("The Crazyflie has crashed and must be restarted")
+
+
+class CrazyflieCannotFly(AerialLibraryError):
+    def __init__(self):
+        super().__init__(
+            "The Crazyflie cannot fly for an unknown reason."
+            " Try restarting the drone"
+        )
