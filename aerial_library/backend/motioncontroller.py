@@ -68,6 +68,8 @@ class MotionController(ContextManager):
         if self.is_flying:
             self.land()
 
+        self._log_config.stop()
+
     @property
     def is_flying(self) -> bool:
         return self._is_flying
