@@ -35,20 +35,20 @@ class Drone(ContextManager):
       After landing, the Crazyflie is disconnected.
 
     Example:
-        This short script connects to a Crazyflie with all features enabled.
-        The drone takes off to an altitude of 1 meter and measures the distance to the front:
+    This short script connects to a Crazyflie with all features enabled.
+    The drone takes off to an altitude of 1 meter and measures the distance to the front:
 
-        >>> from aerial_library import Drone, FlowDeck, MultiRangerDeck
-        >>>
-        >>> with Drone(
-        ...     "E7E7E7E7E7",
-        ...     FlowDeck,
-        ...     MultiRangerDeck,
-        ... ) as drone:
-        ...     drone.takeoff(1.0)
-        ...
-        ...     distance = drone.measure_front()
-        ...     print(f"Distance to front in meters: {distance}")
+    >>> from aerial_library import Drone, FlowDeck, MultiRangerDeck
+    >>>
+    >>> with Drone(
+    ...     "E7E7E7E7E7",
+    ...     FlowDeck,
+    ...     MultiRangerDeck,
+    ... ) as drone:
+    ...     drone.takeoff(1.0)
+    ...
+    ...     distance = drone.measure_front()
+    ...     print(f"Distance to front in meters: {distance}")
     """
 
     def __init__(

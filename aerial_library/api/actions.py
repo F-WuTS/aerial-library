@@ -145,11 +145,11 @@ class Actions:
         Diagonal movement as well as spinning while moving is thereby supported.
 
         Example:
-            >>> from aerial_library import Drone, FlowDeck
-            >>>
-            >>> with Drone("E7E7E7E7E7", FlowDeck) as drone:
-            ...     drone.takeoff(0.5)
-            ...     drone.move(forward=1.0, up=0.5)
+        >>> from aerial_library import Drone, FlowDeck
+        >>>
+        >>> with Drone("E7E7E7E7E7", FlowDeck) as drone:
+        ...     drone.takeoff(0.5)
+        ...     drone.move(forward=1.0, up=0.5)
         """
         lateral = {
             "forward": forward,
