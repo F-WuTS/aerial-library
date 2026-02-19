@@ -164,7 +164,7 @@ This will reset the Crazyflie to default values, including the radio address.
 + Plug the Crazyradio into your computer and start the cfclient.
   In the window menu, open Connect → Bootloader.
 
-+ in the Cold boot (recovery) tab, select Initiate bootloader cold boot.
++ In the Cold boot (recovery) tab, select Initiate bootloader cold boot.
 
 + Now power on the drone to recover by holding down its power button for a few seconnds.
   The rear LEDs of the drone should blink blue now.
