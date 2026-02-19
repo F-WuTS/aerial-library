@@ -1,5 +1,7 @@
 """
-This library provides simple and intuitive controls for a Crazyflie drone.
+Python library for the robo4you Aerial Junior Challenge.
+
+Enables simple, intuitive interaction with the Crazyflie 2.1 drone.
 
 To get started, please see the user guide in the downloads section of our website:
 https://aerial-challenge.org/downloads/
