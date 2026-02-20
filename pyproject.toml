@@ -1,13 +1,18 @@
 [project]
 name = "aerial-library"
-version = "0.1.0"
-description = "Add your description here"
 authors = [
-    { name = "robo4you" }
+    { name = "Konstantin Lindorfer", email = "konstantin.lindorfer@robo4you.at" }
 ]
+description = "Intuitive controls for a Crazyflie drone, built for the robo4you Aerial Junior Challenge"
+version = "0.2.0"
 readme = "README.md"
-requires-python = ">=3.12"
+license = "MIT"
+license-files = ["LICENSE.txt"]
+requires-python = ">=3.11"
 dependencies = [
     "appdirs>=1.4.4",
     "cflib>=0.1.30",
 ]
+
+[project.urls]
+homepage = "https://aerial-challenge.org"

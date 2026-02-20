@@ -6,3 +6,5 @@ dist
 uv.lock
 
 .idea
+
+*.pdf
